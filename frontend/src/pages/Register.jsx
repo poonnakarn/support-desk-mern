@@ -27,7 +27,7 @@ function Register() {
     }
 
     // Redirect when logged in
-    if (isSuccess || user) {
+    if (isSuccess && user) {
       navigate('/')
     }
 
