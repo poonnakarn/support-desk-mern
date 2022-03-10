@@ -11,6 +11,30 @@ const initialState = {
   message: '',
 }
 
+// Create new ticket
+export const createTicket = createAsyncThunk(
+  'ticket/create',
+  async (ticketData, thunkAPI) => {
+    // payload creator
+    try {
+      // Get token from thunkAPI
+      const token = thunkAPI.getState().auth.user.token
+
+      // Pass token
+      return await ticketService.createTicket(ticketData, token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
 // 2. Create slice
 export const ticketSlice = createSlice({
   name: 'ticket',
@@ -19,7 +43,21 @@ export const ticketSlice = createSlice({
   reducers: {
     reset: (state) => initialState,
   },
-  extraReducers: (builder) => {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(createTicket.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(createTicket.fulfilled, (state) => {
+        state.isLoading = false
+        state.isSuccess = true
+      })
+      .addCase(createTicket.rejected, (state, action) => {
+        state.isLoading = false
+        state.isError = true
+        state.message = action.payload // from thunkAPI.rejectedWithValue(message)
+      })
+  },
 })
 
 // 4. Export actions and reducer -> import reducer to the store
