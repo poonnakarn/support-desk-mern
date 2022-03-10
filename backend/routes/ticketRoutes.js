@@ -10,6 +10,10 @@ const {
 
 const { protect } = require('../middleware/authMiddleware')
 
+// Nested Route using middleware
+const noteRouter = require('./noteRoutes')
+router.use('/:ticketId/notes', noteRouter)
+
 router.route('/').get(protect, getTickets).post(protect, createTicket)
 
 router
